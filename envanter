@@ -1,0 +1,9 @@
+[master]
+#kube20  ansible_host=192.168.88.20  ansible_user=sergen
+
+[worker]
+#kube21  ansible_host=192.168.88.21  ansible_user=sergen
+#kube22  ansible_host=192.168.88.22  ansible_user=sergen
+kube23  ansible_host=192.168.88.23  ansible_user=sergen
+kube24  ansible_host=192.168.88.24  ansible_user=sergen
+

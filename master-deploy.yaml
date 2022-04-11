@@ -1,0 +1,6 @@
+- name: K8S Worker Deploybook
+  hosts: master
+  gather_facts: yes
+  become: yes
+  tasks:
+    - 
