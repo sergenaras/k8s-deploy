@@ -9,23 +9,17 @@
       private: no
 
   tasks:
-    - name: K8S Cluster network module
-      lineinfile:
-        path: /etc/modules-load.d/k8s.conf
-        line: br_netfilter
-        state: present
-        create: yes
-    - name: K8S Cluster network sysctl
-      blockinfile:
-        path: /etc/sysctl.d/k8s.conf
-        block: |
-          net.bridge.bridge-nf-call-ip6tables = 1
-          net.bridge.bridge-nf-call-iptables = 1
-        state: present
-        create: yes
-    - name: K8S Cluster network configuration apply
+    - name: Swapoff
       shell:
-        cmd: sysctl --system
+        cmd: swapoff -a
+    - name: Comment out the swap line in the /etc/fstab
+      shell:
+        cmd: sed -i 's/^\(.*swap\)/#\1/g' /etc/fstab
+    - name: All package update&upgrade
+      apt:
+        name: "*"
+        state: latest
+        update_cache: yes
 
     - name: Containerd network module
       blockinfile:
@@ -53,7 +47,6 @@
     - name: Containerd network configuration apply
       shell:
         cmd: sysctl --system
-
     - name: APT Update - Upgrade
       apt:
         name: "*"
@@ -78,6 +71,23 @@
         name: containerd
         state: restarted
     
+    - name: K8S Cluster network module
+      lineinfile:
+        path: /etc/modules-load.d/k8s.conf
+        line: br_netfilter
+        state: present
+        create: yes
+    - name: K8S Cluster network sysctl
+      blockinfile:
+        path: /etc/sysctl.d/k8s.conf
+        block: |
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.bridge.bridge-nf-call-iptables = 1
+        state: present
+        create: yes
+    - name: K8S Cluster network configuration apply
+      shell:
+        cmd: sysctl --system
     - name: APT Update
       apt:
         update_cache: yes

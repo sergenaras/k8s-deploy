@@ -2,5 +2,37 @@
   hosts: master
   gather_facts: yes
   become: yes
+  vars_prompt:
+    - name: username
+      prompt: "Kubernetes kullanacak kullanıcı"
+      default: root
+      private: no
   tasks:
-    - 
+    - name: Installation container images
+      shell:
+        cmd: kubeadm config images pull
+    - name:  Kubernetes Master Initialization
+      shell:
+        cmd: kubeadm init --pod-network-cidr=192.168.0.0/16 --apiserver-advertise-address={ansible_all_ipv4_addresses} --control-plane-endpoint={ansible_all_ipv4_addresses}
+    - name: Kubectl config file
+      file:
+        path: /{username}/.kube
+        owner: {username}
+        group: {username}
+        mode: "0644"
+        state: directory    
+    - name: Copy config file
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /{username}/.kube/config
+        owner: {username}
+        group: {username}
+    - name: Calico Namespace& Defination
+      shell:
+        cmd:  kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+    - name: Calico Resource Deployment 
+      shell: 
+        cmd: kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+
+
+    
